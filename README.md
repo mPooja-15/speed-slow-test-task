@@ -268,15 +268,3 @@ speed-slow-test-task/
 | `JWT_SECRET` | JWT signing secret | ✅ | `your-secret-key` |
 | `STRIPE_SECRET_KEY` | Stripe secret key | ✅ | `sk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret | ✅ | `whsec_...` |
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details 
