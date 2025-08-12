@@ -1,141 +1,282 @@
-# Redux Integration Guide
+# Speedy Sell Flow - E-commerce Application
 
-## Current Status
-✅ Redux Toolkit and React Redux are installed  
-✅ All Redux slices are created  
-✅ Store configuration is complete  
-✅ Typed hooks are ready  
-🔄 Need to resolve TypeScript import issues  
+A modern e-commerce application built with React (Frontend) and Node.js/Express (Backend), featuring Redux state management, Stripe payments, and MongoDB database.
 
-## Steps to Complete Redux Integration
+## 🚀 Quick Start
 
-### 1. Fix TypeScript Issues
-The current issue is with module resolution. Try these steps:
+### Prerequisites
+
+- **Node.js** (v16 or higher)
+- **npm** or **yarn** or **bun**
+- **MongoDB** (local or cloud instance)
+- **Stripe Account** (for payments)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd speed-slow-test-task
+   ```
+
+2. **Install Frontend Dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   bun install
+   ```
+
+3. **Install Backend Dependencies**
+   ```bash
+   cd backend
+   npm install
+   cd ..
+   ```
+
+## 🔧 Environment Setup
+
+### Frontend Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# API Configuration
+VITE_API_URL=http://localhost:5000/api
+
+# Stripe Configuration
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
+
+# App Configuration
+VITE_APP_NAME=Speedy Sell Flow
+VITE_APP_VERSION=1.0.0
+```
+
+### Backend Environment Variables
+
+Create a `.env` file in the `backend` directory:
+
+```env
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/speedy_db
+# For MongoDB Atlas: mongodb+srv://username:password@cluster.mongodb.net/speedy_db
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-here
+JWT_EXPIRE=7d
+
+# Password Hashing
+BCRYPT_ROUNDS=12
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret_here
+
+# CORS Configuration (optional)
+CORS_ORIGIN=http://localhost:5173
+```
+
+## 🔑 Required API Keys
+
+### 1. Stripe Keys
+
+You'll need to get these from your [Stripe Dashboard](https://dashboard.stripe.com/):
+
+- **Publishable Key** (`VITE_STRIPE_PUBLISHABLE_KEY`): Used in frontend for payment forms
+- **Secret Key** (`STRIPE_SECRET_KEY`): Used in backend for payment processing
+- **Webhook Secret** (`STRIPE_WEBHOOK_SECRET`): Used for webhook verification
+
+#### How to get Stripe keys:
+
+1. Sign up at [stripe.com](https://stripe.com)
+2. Go to Developers → API keys
+3. Copy the publishable key (starts with `pk_test_` or `pk_live_`)
+4. Copy the secret key (starts with `sk_test_` or `sk_live_`)
+5. For webhooks: Go to Developers → Webhooks → Add endpoint
+   - URL: `https://your-domain.com/api/payments/webhook`
+   - Events: Select payment events you need
+
+### 2. MongoDB Connection
+
+#### Option A: Local MongoDB
+1. Install MongoDB locally
+2. Start MongoDB service
+3. Use: `mongodb://localhost:27017/speedy_db`
+
+#### Option B: MongoDB Atlas (Cloud)
+1. Create account at [mongodb.com](https://mongodb.com)
+2. Create a new cluster
+3. Get connection string from "Connect" button
+4. Replace username, password, and cluster details
+
+### 3. JWT Secret
+
+Generate a secure random string for JWT signing:
+```bash
+# Generate a random string
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+## 🏃‍♂️ Running the Application
+
+### 1. Start Backend Server
 
 ```bash
-# Clear TypeScript cache
-rm -rf node_modules/.cache
-# Restart TypeScript server in your IDE
+cd backend
+
+# Development mode (with auto-restart)
+npm run dev
+
+# Production mode
+npm start
 ```
 
-### 2. Re-enable Redux Provider
-Update `src/App.tsx` to include the Redux Provider:
+The backend will be available at: `http://localhost:5000`
 
-```tsx
-import { Provider } from 'react-redux';
-import { store } from '@/store';
+### 2. Start Frontend Development Server
 
-const App = () => (
-  <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      {/* ... rest of the app */}
-    </QueryClientProvider>
-  </Provider>
-);
+```bash
+# In a new terminal, from the root directory
+npm run dev
+# or
+yarn dev
+# or
+bun dev
 ```
 
-### 3. Migrate Index.tsx to Redux
-Replace local state with Redux state:
+The frontend will be available at: `http://localhost:5173`
 
-```tsx
-// Replace local state
-const [cartItems, setCartItems] = useState<CartItem[]>([]);
+### 3. Seed Database (Optional)
 
-// With Redux state
-const { items: cartItems } = useAppSelector(state => state.cart);
-const dispatch = useAppDispatch();
-
-// Replace state setters with dispatch
-dispatch(addToCart(product));
-dispatch(removeFromCart(productId));
+```bash
+cd backend
+node scripts/seedData.js
 ```
 
-### 4. Test Redux Integration
-- Add items to cart
-- Remove items from cart
-- Update quantities
-- Filter products
-- Check that state persists across component re-renders
+## 📚 API Documentation
 
-## Redux Store Structure
+Once the backend is running, you can access the API documentation at:
+- **Swagger UI**: `http://localhost:5000/api-docs`
 
-```typescript
-{
-  cart: {
-    items: CartItem[],
-    isOpen: boolean
-  },
-  auth: {
-    user: User | null,
-    token: string | null,
-    isAuthenticated: boolean,
-    isLoading: boolean,
-    error: string | null
-  },
-  product: {
-    products: Product[],
-    filteredProducts: Product[],
-    selectedCategory: string,
-    isLoading: boolean,
-    error: string | null
-  },
-  order: {
-    orders: Order[],
-    currentOrder: Order | null,
-    isLoading: boolean,
-    error: string | null
-  }
-}
+## 🧪 Testing
+
+### Backend Tests
+```bash
+cd backend
+npm test
 ```
 
-## Available Actions
+### Frontend Tests
+```bash
+npm test
+```
 
-### Cart Actions
-- `addToCart(product)` - Add product to cart
-- `removeFromCart(productId)` - Remove product from cart
-- `updateQuantity({ productId, quantity })` - Update product quantity
-- `clearCart()` - Clear all cart items
-- `setCartOpen(boolean)` - Open/close cart sidebar
+## 🏗️ Project Structure
 
-### Auth Actions
-- `loginStart()` - Start login process
-- `loginSuccess({ user, token })` - Login successful
-- `loginFailure(error)` - Login failed
-- `logout()` - Logout user
-- `updateUser(userData)` - Update user profile
-- `clearError()` - Clear auth errors
+```
+speed-slow-test-task/
+├── src/                    # Frontend source code
+│   ├── components/         # React components
+│   ├── pages/             # Page components
+│   ├── store/             # Redux store and slices
+│   ├── hooks/             # Custom React hooks
+│   ├── services/          # API services
+│   └── types/             # TypeScript type definitions
+├── backend/               # Backend source code
+│   ├── controllers/       # Route controllers
+│   ├── models/           # MongoDB models
+│   ├── routes/           # API routes
+│   ├── middleware/       # Express middleware
+│   └── config/           # Configuration files
+├── public/               # Static assets
+└── package.json          # Frontend dependencies
+```
 
-### Product Actions
-- `setProducts(products)` - Set product list
-- `setSelectedCategory(category)` - Filter by category
-- `searchProducts(searchTerm)` - Search products
-- `setLoading(boolean)` - Set loading state
-- `setError(error)` - Set error state
+## 🔒 Security Features
 
-### Order Actions
-- `setOrders(orders)` - Set order list
-- `addOrder(order)` - Add new order
-- `setCurrentOrder(order)` - Set current order
-- `updateOrderStatus({ orderId, status })` - Update order status
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: bcryptjs for password security
+- **Rate Limiting**: Prevents abuse and DDoS attacks
+- **Input Validation**: Express-validator for data validation
+- **CORS Protection**: Configurable cross-origin resource sharing
+- **Security Headers**: Helmet for additional security headers
 
-## Benefits of Redux Integration
+## 🛒 Features
 
-1. **Centralized State**: All app state in one place
-2. **Predictable Updates**: State changes follow Redux patterns
-3. **Developer Tools**: Redux DevTools for debugging
-4. **Performance**: Optimized re-renders
-5. **Scalability**: Easy to add new features
-6. **Testing**: Easy to test state changes
+### Frontend
+- ✅ Modern React with TypeScript
+- ✅ Redux Toolkit for state management
+- ✅ Stripe payment integration
+- ✅ Responsive design with Tailwind CSS
+- ✅ Shopping cart functionality
+- ✅ User authentication
+- ✅ Product catalog with filtering
+- ✅ Order management
 
-## Troubleshooting
+### Backend
+- ✅ RESTful API with Express.js
+- ✅ MongoDB with Mongoose ODM
+- ✅ JWT authentication
+- ✅ Stripe payment processing
+- ✅ Order management
+- ✅ Product management
+- ✅ User management
+- ✅ API documentation with Swagger
 
-### Common Issues:
-1. **Import Errors**: Restart TypeScript server
-2. **Type Errors**: Check slice exports
-3. **State Not Updating**: Verify action dispatching
-4. **Performance Issues**: Use React.memo for components
+## 🚨 Troubleshooting
 
-### Debug Tools:
-- Redux DevTools browser extension
-- Console logging in reducers
-- React DevTools for component state 
+### Common Issues
+
+1. **CORS Errors**
+   - Ensure backend CORS_ORIGIN matches frontend URL
+   - Check that both servers are running
+
+2. **MongoDB Connection Issues**
+   - Verify MongoDB is running
+   - Check connection string format
+   - Ensure network access for cloud MongoDB
+
+3. **Stripe Payment Issues**
+   - Verify API keys are correct
+   - Check webhook endpoint configuration
+   - Ensure using test keys for development
+
+4. **Port Already in Use**
+   - Change PORT in backend .env file
+   - Update VITE_API_URL in frontend .env file
+
+### Development Tips
+
+- Use Redux DevTools for state debugging
+- Check browser console for frontend errors
+- Monitor backend logs for API issues
+- Use Swagger UI to test API endpoints
+
+## 📝 Environment Variables Summary
+
+| Variable | Description | Required | Example |
+|----------|-------------|----------|---------|
+| `VITE_API_URL` | Backend API URL | ✅ | `http://localhost:5000/api` |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | ✅ | `pk_test_...` |
+| `PORT` | Backend server port | ❌ | `5000` |
+| `MONGODB_URI` | MongoDB connection string | ✅ | `mongodb://localhost:27017/speedy_db` |
+| `JWT_SECRET` | JWT signing secret | ✅ | `your-secret-key` |
+| `STRIPE_SECRET_KEY` | Stripe secret key | ✅ | `sk_test_...` |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret | ✅ | `whsec_...` |
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details 
